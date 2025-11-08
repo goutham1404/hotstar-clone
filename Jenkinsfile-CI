@@ -1,0 +1,109 @@
+pipeline {
+    agent any
+    tools {
+        jdk 'jdk17'
+        nodejs 'node16'
+    }
+    environment {
+        SCANNER_HOME = tool 'mysonar'
+    }
+    stages {
+        stage("clean WS") {
+            steps{
+                cleanWs()
+            }
+        }
+        stage("Code Checkout") {
+            steps {
+                git "https://github.com/goutham1404/hotstar-clone.git"
+            }
+        }
+        stage("Sonarqube Analysis") {
+            steps {
+                withSonarQubeEnv('mysonar') {
+                    sh """$SCANNER_HOME/bin/sonar-scanner \
+                        -Dsonar.projectName=HOTSTAR \
+                        -Dsonar.projectKey=JioHotstar"""
+                }
+            }
+        }
+        stage("Quality Gates") {
+            steps {
+                script {
+                    waitForQualityGate abortPipeline: false, credentialsId: 'sonar-token'
+                }
+            }
+        }
+        stage("Install Dependencies") {
+            steps {
+                sh 'npm install'
+            }
+        }
+        stage("OWASP") {
+            steps {
+                dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit --nvdApiKey 87006b72-7d13-4c89-8288-736dde22951a', odcInstallation: 'DP-Check'
+                dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+            }
+        }
+        stage("Trivy") {
+            steps {
+                sh 'trivy fs . > trivyfs.txt'
+            }
+        }
+        stage("Build") {
+            steps {
+                sh 'docker build -t image1 .'
+            }
+        }
+        stage("Tag & Push") {
+            steps {
+                script {
+                    withDockerRegistry(credentialsId: 'dockerHub') {
+                        sh 'docker tag image1 goutham1404/hotstar_clone:v2'
+                        sh 'docker push goutham1404/hotstar_clone:v2'
+                    }
+                }
+            }
+        }
+        stage('Trigger CD Pipeline') {
+            steps {
+              build job: 'Hotstar-CD'  
+            }
+        }
+        stage("Scan the Image") {
+            steps {
+                sh 'trivy image goutham1404/hotstar_clone:v2'
+            }
+        }
+        stage("Container") {
+            steps {
+                sh 'docker run -d --name hotstar -p 3000:3000 goutham1404/hotstar_clone:v2'
+            }
+        }
+    }
+    post {
+    always {
+        script {
+            def buildStatus = currentBuild.currentResult
+            def buildUser = currentBuild.getBuildCauses('hudson.model.Cause$UserIdCause')[0]?.userId ?: 'Github User'
+            
+            emailext (
+                subject: "Pipeline ${buildStatus}: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                body: """
+                    <p>This is a Jenkins HOTSTAR CICD pipeline status.</p>
+                    <p>Project: ${env.JOB_NAME}</p>
+                    <p>Build Number: ${env.BUILD_NUMBER}</p>
+                    <p>Build Status: ${buildStatus}</p>
+                    <p>Started by: ${buildUser}</p>
+                    <p>Build URL: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
+                """,
+                to: 'openmage5@gmail.com',
+                from: 'openmage5@gmail.com',
+                mimeType: 'text/html',
+                attachmentsPattern: 'trivyfs.txt,trivyimage.txt'
+            )
+           }
+       }
+
+    }
+}
