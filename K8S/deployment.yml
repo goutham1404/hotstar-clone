@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
       - name: hotstar
-        image: goutham1404/hotstar_clone:v1
+        image: goutham1404/hotstar_clone:v2
         ports:
         - containerPort: 3000  # Port your application listens on
