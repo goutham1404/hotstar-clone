@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: JioHotstar-deploy
+  name: hotstar-deploy
 spec:
   replicas: 4  # Number of desired replicas
   selector:
