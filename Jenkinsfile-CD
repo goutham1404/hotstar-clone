@@ -1,0 +1,57 @@
+pipeline {
+    agent any
+
+    stages {
+        stage("Clean WS"){
+            steps{
+                cleanWs()
+            }
+        }
+        stage("Code Checkout") {
+            steps {
+                git "https://github.com/goutham1404/hotstar-clone.git"
+            }
+        }
+        stage('Verify: Docker Image Tags') {
+            steps {
+                script {
+                    echo "Verifying Docker image tag..."
+                    echo "Image to deploy: goutham1404/hotstar_clone:v01"
+                }
+            }
+        }
+       stage('Update: Kubernetes manifests') {
+            steps {
+                script {
+                    sh '''
+                    echo "Updating image in Kubernetes deployment file..."
+                    sed -i 's|image:.*|image: goutham1404/hotstar_clone:v01|g' K8S/deployment.yml
+                    echo "Updated deployment.yml content:"
+                    grep image: K8S/deployment.yml
+                    '''
+                }
+            }
+        }
+        stage("Git: Code update and push to GitHub"){
+            steps{
+                script{
+                    withCredentials([gitUsernamePassword(credentialsId: 'github-cred', gitToolName: 'Default')]) {
+                        sh '''
+                        echo "Checking repository status: "
+                        git status
+                    
+                        echo "Adding changes to git: "
+                        git add .
+                        
+                        echo "Commiting changes: "
+                        git commit -m "Updated environment variables"
+                        
+                        echo "Pushing changes to github: "
+                        git push https://github.com/goutham1404/hotstar-clone.git
+                    '''
+                    }
+                }
+            }
+        }
+    }
+}
