@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: hotstar-service
+  name: JioHotstar-service
 spec:
   selector:
     app: hotstar
