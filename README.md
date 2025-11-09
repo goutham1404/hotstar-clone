@@ -1,4 +1,3 @@
-# DevSecOps With Docker Scout Hotstar Clone
 
 # Implementing a Full DevSecOps CI/CD Pipeline for Microservices on Kubernetes
 
