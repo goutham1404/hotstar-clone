@@ -20,6 +20,7 @@ This project demonstrates the complete end-to-end automation of microservice dep
 ### How pipeline will look after deployment:
 
 - CI pipeline to build and push
+<img width="963" height="431" alt="image" src="https://github.com/user-attachments/assets/668919fb-030c-4da1-a5dc-6213c77bd207" />
 
 - CD pipeline to update application version
 - Docker Image after tag & push in JioHotstar-CI pipeline
