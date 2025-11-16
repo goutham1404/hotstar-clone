@@ -57,12 +57,12 @@ We are creating this master machine (microservice-project-goutm) because we will
 Go to master machine (microservice-project-goutm) server and give the below commands :
 
 1.  **Install & Configure Docker by using below commands**
-
+'''
 sudo apt-get update
 
 sudo apt-get install docker.io -y  
 sudo usermod -aG docker ubuntu && newgrp docker
-
+'''
 To provide permission to docker socket so that docker build and push command do not fail give below command
 
 sudo chmod 777 /var/run/docker.sock
