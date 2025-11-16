@@ -57,20 +57,22 @@ We are creating this master machine (microservice-project-goutm) because we will
 Go to master machine (microservice-project-goutm) server and give the below commands :
 
 1.  **Install & Configure Docker by using below commands**
-'''
+```bash
 sudo apt-get update
 
 sudo apt-get install docker.io -y  
 sudo usermod -aG docker ubuntu && newgrp docker
-'''
+```
 To provide permission to docker socket so that docker build and push command do not fail give below command
 
+```bash
 sudo chmod 777 /var/run/docker.sock
+```
 
 <img width="975" height="149" alt="image" src="https://github.com/user-attachments/assets/744ab9de-1f68-4f90-a912-8ba6b8834714" />
 
 2.  **Install and configure Jenkins**
-
+```
 sudo apt update -y  
 sudo apt install fontconfig openjdk-17-jre -y  
 <br/>sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \\  
@@ -80,7 +82,7 @@ https://pkg.jenkins.io/debian-stable binary/ | sudo tee \\
 /etc/apt/sources.list.d/jenkins.list > /dev/null  
 <br/>sudo apt-get update -y  
 sudo apt-get install jenkins -y
-
+```
 <img width="975" height="412" alt="image" src="https://github.com/user-attachments/assets/a73ed62f-e9b3-4865-ae8f-b3c093ed13fc" />
 
 - Now, access Jenkins on the browser on port 8080 and configure it. (&lt;public-ip&gt;:8080)
